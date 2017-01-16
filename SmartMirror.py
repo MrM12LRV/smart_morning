@@ -1,9 +1,11 @@
 from tkinter import *
-from lxml import html
 import time
+import datetime
+
+#Will need downloading
+from lxml import html
 import json
 import requests
-import datetime
 from PIL import Image, ImageTk
 
 def cleanTime(time): #destructively removes leading 0 in 12 hr time
