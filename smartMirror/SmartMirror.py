@@ -74,11 +74,11 @@ class Weather(object):
         sunsetTotal = int(sunsetH * 60 + sunsetM)
         return sunriseTotal <= timeTotal <=  sunsetTotal
 
-    def draw(self, canvas, width):
-        line1 = Text(self.x, self.y - 35, "%s degrees" % (self.temp), 24, anc = 'w')
-        line2 = Text(self.x, self.y - 10, self.descript, 16, anc = 'w')
-        line3 = Text(self.x, self.y + 10, "Humidity " + str(self.humidity) + "%", 16, anc = 'w')
-        line4 = Text(self.x, self.y + 30, "Sundown " + self.sunset, 16, anc = 'w')
+    def draw(self, canvas):
+        line1 = Text(self.x, self.y - 50, str(self.temp) + chr(176), 36, anc = 'w')
+        line2 = Text(self.x, self.y - 15, self.descript, 22, anc = 'w')
+        line3 = Text(self.x, self.y + 15, "Humidity " + str(self.humidity) + "%", 22, anc = 'w')
+        line4 = Text(self.x, self.y + 45, "Sundown " + self.sunset, 22, anc = 'w')
         line1.drawText(canvas)
         line2.drawText(canvas)
         line3.drawText(canvas)
@@ -87,7 +87,7 @@ class Weather(object):
             img = self.photo
         else:
             img = self.moon
-        canvas.create_image(width, self.y + 30, image = img)
+        canvas.create_image(self.x + 50, self.y - 135, image = img)
 
 class news(object):
     def __init__(self, x, y):
@@ -105,13 +105,13 @@ class news(object):
         return self.news[int(self.article)%self.numArticles]
 
     def draw(self, canvas):
-        headline = Text(self.x, self.y, self.getArticle(), 14)
+        headline = Text(self.x, self.y, self.getArticle(), 20)
         headline.drawText(canvas)
 
 class TimeDate(object):
     def __init__(self, x, y):
-        self.time = Text(x, y - 15, "", 30)
-        self.date = Text(x, y + 15, "", 20)
+        self.time = Text(x, y - 20, "", 45)
+        self.date = Text(x, y + 20, "", 30)
         self.update()
 
     def update(self):
@@ -144,17 +144,12 @@ class Location(object):
         return result
 
     def draw(self, canvas):
-        line1 = Text(self.x, self.y, self.address, 20)
+        line1 = Text(self.x, self.y, self.address, 30)
         line1.drawText(canvas)
 
 class SmartMirror(object):
-    def __init__(self, width = 500, height = 700):
-        self.width, self.height = width, height
+    def __init__(self):
         self.bgColor = "black"
-        self.timeDate = TimeDate(self.width/2, 40)
-        self.weather = Weather(20, 110)
-        self.location = Location(self.width/2, self.height - 30)
-        self.news = news(width/2, height-80)
     
     def timerFired(self):
         self.timeDate.update()
@@ -163,7 +158,7 @@ class SmartMirror(object):
     def redrawAll(self, canvas):
         canvas.create_rectangle(0, 0, self.width, self.height, fill = self.bgColor)
         self.timeDate.draw(canvas)
-        self.weather.draw(canvas, self.width/2)
+        self.weather.draw(canvas)
         self.location.draw(canvas)
         self.news.draw(canvas)
 
@@ -185,15 +180,22 @@ class SmartMirror(object):
             canvas.after(self.timerDelay, timerFiredWrapper, canvas, self)
         
         root = Tk()
-
+        self.width, self.height = root.winfo_screenwidth(), root.winfo_screenheight()
+        
+        self.timeDate = TimeDate(self.width/2, 100)
+        self.weather = Weather(100, 250)
+        self.location = Location(self.width/2, self.height - 120)
+        self.news = news(self.width/2, self.height - 175)
+        
         key = self.getKey(self.weather.id)
         d = {1: "Sunny.jpg", 2: "Thunderstorm.jpg", 3: "Rain.jpg", 4: "Partly Cloudy.jpg", 5: "Rain.jpg", 6: "Snow.jpg", 7: "Other.jpg", 8: "Clouds.jpg", 9: "Other.jpg"}
         self.weather.photo = ImageTk.PhotoImage(Image.open(join(BASE_PATH, d[key])))
         self.weather.moon = ImageTk.PhotoImage(Image.open(join(BASE_PATH, "Moon.jpg")))
+
         root.wm_title("SmartMirror")
         root.geometry(str(self.width) + "x" + str(self.height))
         self.timerDelay = 200 # milliseconds
-        canvas = Canvas(root, width =  self.width, height=self.height)
+        canvas = Canvas(root, width = self.width, height=self.height)
         canvas.pack()
         timerFiredWrapper(canvas, self)
         root.mainloop()
