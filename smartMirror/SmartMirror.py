@@ -181,7 +181,7 @@ class SmartMirror(object):
         
         root = Tk()
         self.width, self.height = root.winfo_screenwidth(), root.winfo_screenheight()
-        
+        root.overrideredirect(1)
         self.timeDate = TimeDate(self.width/2, 100)
         self.weather = Weather(100, 250)
         self.location = Location(self.width/2, self.height - 120)
