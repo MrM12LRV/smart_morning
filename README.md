@@ -18,13 +18,14 @@ TODO: put other requirements... we may have missed some
 
 
 For speech to text:
-    python3 -m pip install pocketsphinx
 
+    python3 -m pip install pocketsphinx
     brew install portaudio // required by PyAudio
     python3 -m pip install PyAudio
     python3 -m pip install SpeechRecognition
 
 Some libraries for smart mirror:
+
     python3 -m pip install lxml
     python3 -m pip install requests
     python3 -m pip install pillow       // PIL image library
