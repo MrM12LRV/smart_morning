@@ -167,6 +167,12 @@ class SmartMirror(object):
         self.location.draw(canvas)
         self.news.draw(canvas)
 
+    def getKey(self, weatherId):
+        if weatherId == 800: key = 1
+        elif weatherId == 801: key = 4
+        else: key = weatherId//100
+        return key
+
     def run(self):
         def redrawAllWrapper(canvas, self):
             canvas.delete(ALL)
@@ -180,10 +186,7 @@ class SmartMirror(object):
         
         root = Tk()
 
-        if self.weather.id == 800: key = 1
-        elif self.weather.id == 801: key = 4
-        else: key = self.weather.id//100
-        key = 9
+        key = self.getKey(self.weather.id)
         d = {1: "Sunny.jpg", 2: "Thunderstorm.jpg", 3: "Rain.jpg", 4: "Partly Cloudy.jpg", 5: "Rain.jpg", 6: "Snow.jpg", 7: "Other.jpg", 8: "Clouds.jpg", 9: "Other.jpg"}
         self.weather.photo = ImageTk.PhotoImage(Image.open(join(BASE_PATH, d[key])))
         self.weather.moon = ImageTk.PhotoImage(Image.open(join(BASE_PATH, "Moon.jpg")))
