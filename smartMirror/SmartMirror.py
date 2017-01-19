@@ -41,7 +41,7 @@ class Weather(object):
         return lat, lon
 
     def getWeather(self):
-        lat, lon = self.getLatLon()
+        lat, lon = 40.4435, -79.9435 #self.getLatLon() 
         apiKey = '5740d2c30126407518998689a40335ad'
         r = requests.get('http://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s&units=imperial' % (lat, lon, apiKey))
         return(r.json())
@@ -75,7 +75,7 @@ class Weather(object):
         return sunriseTotal <= timeTotal <=  sunsetTotal
 
     def draw(self, canvas, width):
-        line1 = Text(self.x, self.y - 35, "%s degrees" % (self.temp), 24, anc = 'w')
+        line1 = Text(self.x, self.y - 35, str(self.temp) + chr(176), 24, anc = 'w')
         line2 = Text(self.x, self.y - 10, self.descript, 16, anc = 'w')
         line3 = Text(self.x, self.y + 10, "Humidity " + str(self.humidity) + "%", 16, anc = 'w')
         line4 = Text(self.x, self.y + 30, "Sundown " + self.sunset, 16, anc = 'w')
@@ -131,8 +131,7 @@ class Location(object):
         send_url = 'http://freegeoip.net/json'
         r = requests.get(send_url)
         j = json.loads(r.text)
-        lat = j['latitude']
-        lon = j['longitude']
+        lat, lon = 40.4435, -79.9435 #j['latitude'], j['longitude']
         r = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&key=AIzaSyBzGpoNZw9IE0enxByNgMA5NSat1xB_Ohw" % (lat, lon))
         address = r.json()['results'][0]['formatted_address']
         return self.buildAddress(address)
@@ -148,7 +147,7 @@ class Location(object):
         line1.drawText(canvas)
 
 class SmartMirror(object):
-    def __init__(self, width = 500, height = 700):
+    def __init__(self, width = 700, height = 900):
         self.width, self.height = width, height
         self.bgColor = "black"
         self.timeDate = TimeDate(self.width/2, 40)
