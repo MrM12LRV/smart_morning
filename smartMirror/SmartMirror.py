@@ -55,7 +55,6 @@ class Weather(object):
         self.sunset24 = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunset'])).strftime('%H:%M'))
         self.sunset = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunset'])).strftime('%I:%M %p'))
         self.cloudCover = weather['clouds']['all']
-        self.windDeg = weather['wind']['deg']
         self.windSpeed = weather['wind']['speed']
         self.visibility = weather['visibility']
         self.descript = weather['weather'][0]['description'].title()
@@ -106,7 +105,7 @@ class news(object):
         return self.news[int(self.article)%self.numArticles]
 
     def draw(self, canvas):
-        headline = Text(self.x, self.y, self.getArticle(), 20)
+        headline = Text(self.x, self.y, self.getArticle(), 16)
         headline.drawText(canvas)
 
 class TimeDate(object):
@@ -154,6 +153,10 @@ class SmartMirror(object):
     def timerFired(self):
         self.timeDate.update()
         self.news.article += 0.04
+
+    def keyPressed(self, event, root):
+        e = event.keysym
+        if e == 'q': root.destroy()
         
     def redrawAll(self, canvas):
         canvas.create_rectangle(0, 0, self.width, self.height, fill = self.bgColor)
@@ -174,6 +177,10 @@ class SmartMirror(object):
             self.redrawAll(canvas)
             canvas.update()    
 
+        def keyPressedWrapper(event, canvas, self, root):
+            self.keyPressed(event, root)
+            redrawAllWrapper(canvas, self)
+
         def timerFiredWrapper(canvas, self):
             self.timerFired()
             redrawAllWrapper(canvas, self)
@@ -181,7 +188,7 @@ class SmartMirror(object):
         
         root = Tk()
         self.width, self.height = root.winfo_screenwidth(), root.winfo_screenheight()
-        root.overrideredirect(1)
+
         self.timeDate = TimeDate(self.width/2, 100)
         self.weather = Weather(100, 250)
         self.location = Location(self.width/2, self.height - 120)
@@ -197,6 +204,7 @@ class SmartMirror(object):
         self.timerDelay = 200 # milliseconds
         canvas = Canvas(root, width = self.width, height=self.height)
         canvas.pack()
+        root.bind("<Key>", lambda event: keyPressedWrapper(event, canvas, self, root))
         timerFiredWrapper(canvas, self)
         root.mainloop()
         print("bye!")
