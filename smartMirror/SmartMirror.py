@@ -36,8 +36,8 @@ class Weather(object):
         send_url = 'http://freegeoip.net/json'
         r = requests.get(send_url)
         j = json.loads(r.text)
-        lat = j['latitude']
-        lon = j['longitude']
+        lat = 40.4434660 #j['latitude']
+        lon = -79.9434570 #j['longitude']
         return lat, lon
 
     def getWeather(self):
@@ -54,6 +54,7 @@ class Weather(object):
         self.sunrise24 = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunrise'])).strftime('%H:%M'))
         self.sunset24 = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunset'])).strftime('%H:%M'))
         self.sunset = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunset'])).strftime('%I:%M %p'))
+        self.cloudCover = weather['clouds']['all']
         self.windDeg = weather['wind']['deg']
         self.windSpeed = weather['wind']['speed']
         self.visibility = weather['visibility']
@@ -77,7 +78,7 @@ class Weather(object):
     def draw(self, canvas):
         line1 = Text(self.x, self.y - 50, str(self.temp) + chr(176), 36, anc = 'w')
         line2 = Text(self.x, self.y - 15, self.descript, 22, anc = 'w')
-        line3 = Text(self.x, self.y + 15, "Humidity " + str(self.humidity) + "%", 22, anc = 'w')
+        line3 = Text(self.x, self.y + 15, "Cloud Cover: " + str(self.cloudCover) + "%", 22, anc = 'w')
         line4 = Text(self.x, self.y + 45, "Sundown " + self.sunset, 22, anc = 'w')
         line1.drawText(canvas)
         line2.drawText(canvas)
@@ -131,8 +132,8 @@ class Location(object):
         send_url = 'http://freegeoip.net/json'
         r = requests.get(send_url)
         j = json.loads(r.text)
-        lat = j['latitude']
-        lon = j['longitude']
+        lat = 40.4434660 #j['latitude']
+        lon = -79.9434570 #j['longitude']
         r = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&key=AIzaSyBzGpoNZw9IE0enxByNgMA5NSat1xB_Ohw" % (lat, lon))
         address = r.json()['results'][0]['formatted_address']
         return self.buildAddress(address)
