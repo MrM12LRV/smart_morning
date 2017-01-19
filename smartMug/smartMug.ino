@@ -7,7 +7,7 @@
 //CHECK PINS!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
 uint8_t greenLED = 13; //digWrite
-uint8_t redLED = 12; //digWrite
+uint8_t redLED = 8; //digWrite
 
 float TEMP1;
 float TEMP2;
@@ -42,12 +42,12 @@ void loop() {
   Serial.println(TEMP2); //debug
   if (TEMP1 > 30){
     digitalWrite(greenLED,HIGH);
-    delay(2000);
+    delay(1000);
     digitalWrite(greenLED,LOW);
   }
   else {
     digitalWrite(redLED,HIGH);
-    delay(2000);
+    delay(1000);
     digitalWrite(redLED,LOW);
   }
   
