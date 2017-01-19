@@ -20,4 +20,3 @@ for media in recent_media:
 		
 	except:
 		continue
-print photoURL
