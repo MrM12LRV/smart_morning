@@ -147,6 +147,7 @@ def Appearance():
 
 
 #####
+"""
 def showInsta():
     access_token = "305057786.eca884d.4e28837ad0f34ffa97b323b40ab41eba"
     client_secret = "e425943412cd4a55b74d0671c896e123"
@@ -174,9 +175,9 @@ def showInsta():
     final_array = zip(photoURL,like_count_array)
     return final_array
 
-def drawInstaScreen(final_array):
-    
+#def drawInstaScreen(final_array):
 
+"""
 #####
 def cleanTime(time): #destructively removes leading 0 in 12 hr time
     if time[0] == "0": time = time[1:]
