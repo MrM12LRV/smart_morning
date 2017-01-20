@@ -169,12 +169,12 @@ class Weather(object):
         send_url = 'http://freegeoip.net/json'
         r = requests.get(send_url)
         j = json.loads(r.text)
-        lat = j['latitude']
-        lon = j['longitude']
+        lat = 40.4434660 #j['latitude']
+        lon = -79.9434570 #j['longitude']
         return lat, lon
 
     def getWeather(self):
-        lat, lon = self.getLatLon()
+        lat, lon = 40.4435, -79.9435 #self.getLatLon() 
         apiKey = '5740d2c30126407518998689a40335ad'
         r = requests.get('http://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s&units=imperial' % (lat, lon, apiKey))
         return(r.json())
@@ -187,7 +187,7 @@ class Weather(object):
         self.sunrise24 = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunrise'])).strftime('%H:%M'))
         self.sunset24 = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunset'])).strftime('%H:%M'))
         self.sunset = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunset'])).strftime('%I:%M %p'))
-        self.windDeg = weather['wind']['deg']
+        self.cloudCover = weather['clouds']['all']
         self.windSpeed = weather['wind']['speed']
         self.visibility = weather['visibility']
         self.descript = weather['weather'][0]['description'].title()
@@ -210,7 +210,7 @@ class Weather(object):
     def draw(self, canvas):
         line1 = Text(self.x, self.y - 50, str(self.temp) + chr(176), 36, anc = 'w')
         line2 = Text(self.x, self.y - 15, self.descript, 22, anc = 'w')
-        line3 = Text(self.x, self.y + 15, "Humidity " + str(self.humidity) + "%", 22, anc = 'w')
+        line3 = Text(self.x, self.y + 15, "Cloud Cover: " + str(self.cloudCover) + "%", 22, anc = 'w')
         line4 = Text(self.x, self.y + 45, "Sundown " + self.sunset, 22, anc = 'w')
         line1.drawText(canvas)
         line2.drawText(canvas)
@@ -238,7 +238,7 @@ class news(object):
         return self.news[int(self.article)%self.numArticles]
 
     def draw(self, canvas):
-        headline = Text(self.x, self.y, self.getArticle(), 20)
+        headline = Text(self.x, self.y, self.getArticle(), 16)
         headline.drawText(canvas)
 
 class TimeDate(object):
@@ -264,8 +264,7 @@ class Location(object):
         send_url = 'http://freegeoip.net/json'
         r = requests.get(send_url)
         j = json.loads(r.text)
-        lat = j['latitude']
-        lon = j['longitude']
+        lat, lon = 40.4435, -79.9435 #j['latitude'], j['longitude']
         r = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&key=AIzaSyBzGpoNZw9IE0enxByNgMA5NSat1xB_Ohw" % (lat, lon))
         address = r.json()['results'][0]['formatted_address']
         return self.buildAddress(address)
@@ -292,6 +291,10 @@ class SmartMirror(object):
 
         self.timeDate.update()
         self.news.article += 0.04
+
+    def keyPressed(self, event, root):
+        e = event.keysym
+        if e == 'q': root.destroy()
         
     def redrawAll(self, canvas):
         canvas.create_rectangle(0, 0, self.width, self.height, fill = self.bgColor)
@@ -312,6 +315,10 @@ class SmartMirror(object):
             self.redrawAll(canvas)
             canvas.update()    
 
+        def keyPressedWrapper(event, canvas, self, root):
+            self.keyPressed(event, root)
+            redrawAllWrapper(canvas, self)
+
         def timerFiredWrapper(canvas, self):
             self.timerFired()
             redrawAllWrapper(canvas, self)
@@ -319,7 +326,7 @@ class SmartMirror(object):
         
         root = Tk()
         self.width, self.height = root.winfo_screenwidth(), root.winfo_screenheight()
-        root.overrideredirect(1)
+
         self.timeDate = TimeDate(self.width/2, 100)
         self.weather = Weather(100, 250)
         self.location = Location(self.width/2, self.height - 120)
@@ -336,9 +343,13 @@ class SmartMirror(object):
         canvas = Canvas(root, width = self.width, height=self.height)
         canvas.pack()
 
+
         # Initialize and start speech to functioner:
         self.sf = SpeechFunctioner()
         self.sf.async_read_microphone();
+
+
+        root.bind("<Key>", lambda event: keyPressedWrapper(event, canvas, self, root))
 
         timerFiredWrapper(canvas, self)
         root.mainloop()
