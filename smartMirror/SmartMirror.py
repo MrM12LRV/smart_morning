@@ -13,6 +13,10 @@ from PIL import Image, ImageTk  # `python3 -m pip install pillow`
 from os.path import join
 from pprint import PrettyPrinter
 
+from instagram.client import InstagramAPI
+import httplib2
+import sys
+
 BASE_PATH = "images"
 
 class SpeechFunctioner():
@@ -151,7 +155,38 @@ def Weather():
 
 
 #####
+"""
+def showInsta():
+    access_token = "305057786.eca884d.4e28837ad0f34ffa97b323b40ab41eba"
+    client_secret = "e425943412cd4a55b74d0671c896e123"
+    user_id = "305057786"
+    client_id = "eca884df1cad4666a82432e314de7737"
 
+
+    api = InstagramAPI(access_token=access_token)
+
+    photoURL = []
+    like_count_array = []
+    final_array = []
+
+    recent_media, next = api.user_recent_media(user_id=user_id, count=10)
+    for media in recent_media:
+        try:
+            newURL =  media.images['standard_resolution'].url
+            photoURL.append(newURL)
+
+            new_count = media.like_count
+            like_count_array.append(new_count)
+        except:
+            continue
+
+    final_array = zip(photoURL,like_count_array)
+    return final_array
+
+#def drawInstaScreen(final_array):
+
+"""
+#####
 def cleanTime(time): #destructively removes leading 0 in 12 hr time
     if time[0] == "0": time = time[1:]
     return time
@@ -230,7 +265,36 @@ class Weather(object):
             img = self.moon
         canvas.create_image(self.x + 50, self.y - 135, image = img)
 
-class news(object):
+class Instagram(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.imgArray = []
+        self.populateImgArray()
+
+    def populateImgArray(self):
+        baseSize = 80
+        for i in range(10):
+            name = "test" + str(i) + ".jpeg"
+            img = Image.open(join(BASE_PATH, name))
+            img = self.resize(name, baseSize)
+            tkImg = ImageTk.PhotoImage((img))
+            self.imgArray.append(tkImg)
+
+    def resize(self, name, baseSize):
+        img = Image.open(join(BASE_PATH, name))
+        wpercent = (baseSize/float(img.size[0]))
+        hsize = int((float(img.size[1])*float(wpercent)))
+        img = img.resize((baseSize,hsize), Image.ANTIALIAS)
+        return img
+
+    def draw(self, canvas):
+        spacing = 100
+        for i in range(len(self.imgArray)):
+            x, y = self.x, self.y + spacing * i
+            canvas.create_image(x, y, image = self.imgArray[i])
+
+class News(object):
     def __init__(self, x, y):
         response = requests.get('https://news.google.com/news/section?cf=all&pz=1&topic=b&siidp=b458d5455b7379bd8193a061024cd11baa97&ict=ln')
         if (response.status_code == 200):
@@ -292,11 +356,11 @@ class SmartMirror(object):
         self.bgColor = "black"
     
     def timerFired(self):
-
+        
         print("Voice function is", self.sf.voice_function)
         if self.sf.voice_function is not None and callable(self.sf.voice_function):
             self.sf.voice_function()
-
+        
         self.timeDate.update()
         self.news.article += 0.04
 
@@ -310,6 +374,7 @@ class SmartMirror(object):
         self.weather.draw(canvas)
         self.location.draw(canvas)
         self.news.draw(canvas)
+        self.insta.draw(canvas)
 
     def getKey(self, weatherId):
         if weatherId == 800: key = 1
@@ -339,7 +404,8 @@ class SmartMirror(object):
         self.timeDate = TimeDate(self.width/2, 100)
         self.weather = Weather(100, 250)
         self.location = Location(self.width/2, self.height - 120)
-        self.news = news(self.width/2, self.height - 175)
+        self.news = News(self.width/2, self.height - 175)
+        self.insta = Instagram(self.width - 200, 100)
         
         key = self.getKey(self.weather.id)
         d = {1: "Sunny.jpg", 2: "Thunderstorm.jpg", 3: "Rain.jpg", 4: "Partly Cloudy.jpg", 5: "Rain.jpg", 6: "Snow.jpg", 7: "Other.jpg", 8: "Clouds.jpg", 9: "Other.jpg"}
