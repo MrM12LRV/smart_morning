@@ -114,7 +114,7 @@ class Weather(object):
             img = self.moon
         canvas.create_image(self.x + 50, self.y - 135, image = img)
 
-"""
+
 class InstagramDraw(object):
     def __init__(self, x, y):
         self.x = x
@@ -123,7 +123,7 @@ class InstagramDraw(object):
         self.populateImgArray()
 
     def populateImgArray(self):
-        baseSize = 80
+        baseSize = 160
         for i in range(10):
             name = "test" + str(i) + ".jpeg"
             img = Image.open(join(BASE_PATH, name))
@@ -139,11 +139,11 @@ class InstagramDraw(object):
         return img
 
     def draw(self, canvas):
-        spacing = 100
+        spacing = 180
         for i in range(len(self.imgArray)):
             x, y = self.x, self.y + spacing * i
             canvas.create_image(x, y, image = self.imgArray[i])
-"""
+
 
 class News(object):
     def __init__(self, x, y):
@@ -251,9 +251,9 @@ class SmartMirror(object):
             if self.heartimgy >= self.height:
                 self.heartimgy = 0
                 self.isDrawHearts = False
-        if self.isInstagramToggle:
-            self.InstagramDraw.draw(canvas)
-            self.isInstagramToggle = False
+        if True:
+            self.instagramDraw.draw(canvas)
+            self.isInstagramToggle = True
 
 
     def getKey(self, weatherId):
@@ -284,6 +284,7 @@ class SmartMirror(object):
         self.timeDate = TimeDate(self.width/2, 100)
         self.weather = Weather(100, 250)
         self.location = Location(self.width/2, self.height - 120)
+        self.instagramDraw = InstagramDraw(self.width * 7. / 8, self.height * 1. / 10)
         self.news = News(self.width/2, self.height - 175)
         #self.insta = Instagram(self.width - 200, 100)
         
