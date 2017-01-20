@@ -136,7 +136,8 @@ class InstagramDraw(object):
     def populateLikeArray(self):
         newPath = join(BASE_PATH,"likes.txt")
         curFile = open(newPath, 'r')
-        self.likeArray = curFile.read()
+        self.likeArray = curFile.read().split('\n')
+        print("The array is", self.likeArray)
         curFile.close()
 
     def resize(self, name, baseSize):
@@ -153,8 +154,8 @@ class InstagramDraw(object):
             canvas.create_image(x, y, image = self.imgArray[i])
         j = 0
         for likeCount in self.likeArray:
-            x, y = self.x + 40, self.y + spacing * j
-            likeText = Text(x, y, likeCount, 10)
+            x, y = self.x + 115, self.y + spacing * j
+            likeText = Text(x, y, likeCount, 72)
             likeText.drawText(canvas)
             j += 1
 
@@ -224,7 +225,7 @@ class SmartMirror(object):
     def __init__(self):
         self.bgColor = "black"
         self.isDrawHearts = False
-        self.isInstagramToggle = False
+        self.isInstagramToggle = True
     
     def __call_voice_command(self):
         print("Voice function is", self.sf.voice_function)
