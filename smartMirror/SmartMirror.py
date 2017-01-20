@@ -134,8 +134,8 @@ class InstagramDraw(object):
             self.imgArray.append(tkImg)
 
     def populateLikeArray(self):
-        os.path.join(newPath,"likes.txt")
-        curFile = open(newPath2, 'r')
+        newPath = join(BASE_PATH,"likes.txt")
+        curFile = open(newPath, 'r')
         self.likeArray = curFile.read()
         curFile.close()
 
