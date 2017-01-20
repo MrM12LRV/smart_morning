@@ -26,41 +26,15 @@ def showerWithHearts():
     print("IN HERE!!\n\n\n\nYOYOYOY\n\n\n")
     sm.isDrawHearts = True
     return "What is up yo?"
-	
+
+def InstagramToggle():
+    if sm.isInstagramToggle:
+        sm.isInstagramToggle = False
+    else:
+        sm.isInstagramToggle = True
+    return
 
 
-#####
-"""
-def showInsta():
-    access_token = "305057786.eca884d.4e28837ad0f34ffa97b323b40ab41eba"
-    client_secret = "e425943412cd4a55b74d0671c896e123"
-    user_id = "305057786"
-    client_id = "eca884df1cad4666a82432e314de7737"
-
-
-    api = InstagramAPI(access_token=access_token)
-
-    photoURL = []
-    like_count_array = []
-    final_array = []
-
-    recent_media, next = api.user_recent_media(user_id=user_id, count=10)
-    for media in recent_media:
-        try:
-            newURL =  media.images['standard_resolution'].url
-            photoURL.append(newURL)
-
-            new_count = media.like_count
-            like_count_array.append(new_count)
-        except:
-            continue
-
-    final_array = zip(photoURL,like_count_array)
-    return final_array
-
-#def drawInstaScreen(final_array):
-
-"""
 #####
 def cleanTime(time): #destructively removes leading 0 in 12 hr time
     if time[0] == "0": time = time[1:]
@@ -141,7 +115,7 @@ class Weather(object):
         canvas.create_image(self.x + 50, self.y - 135, image = img)
 
 """
-class Instagram(object):
+class InstagramDraw(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -235,6 +209,7 @@ class SmartMirror(object):
     def __init__(self):
         self.bgColor = "black"
         self.isDrawHearts = False
+        self.isInstagramToggle = False
     
     def __call_voice_command(self):
         print("Voice function is", self.sf.voice_function)
@@ -268,7 +243,6 @@ class SmartMirror(object):
         self.weather.draw(canvas)
         self.location.draw(canvas)
         self.news.draw(canvas)
-        #self.insta.draw(canvas)
         if self.isDrawHearts:
             canvas.create_rectangle(30, 10, 120, 80, 
                     outline="#fb0", fill="#fb0")
@@ -277,6 +251,9 @@ class SmartMirror(object):
             if self.heartimgy >= self.height:
                 self.heartimgy = 0
                 self.isDrawHearts = False
+        if self.isInstagramToggle:
+            self.InstagramDraw.draw(canvas)
+            self.isInstagramToggle = False
 
 
     def getKey(self, weatherId):
