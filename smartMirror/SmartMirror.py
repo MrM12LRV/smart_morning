@@ -13,8 +13,8 @@ from PIL import Image, ImageTk  # `python3 -m pip install pillow`
 from os.path import join
 from pprint import PrettyPrinter
 
-from instagram.client import InstagramAPI
-import httplib2
+#from instagram.client import InstagramAPI
+#import httplib2
 import sys
 
 BASE_PATH = "images"
@@ -143,14 +143,11 @@ class SpeechFunctioner():
 ##### Write functions for voice commands
 
 def showerWithHearts():
-    global canvas
 	# get image and display it on canvas
   	# need to display gif of salt bae
+    print("IN HERE!!\n\n\n\nYOYOYOY\n\n\n")
+    sm.isDrawHearts = True
     return "What is up yo?"
-
-def 
-
-def Weather():
 	
 
 
@@ -265,6 +262,7 @@ class Weather(object):
             img = self.moon
         canvas.create_image(self.x + 50, self.y - 135, image = img)
 
+"""
 class Instagram(object):
     def __init__(self, x, y):
         self.x = x
@@ -293,6 +291,7 @@ class Instagram(object):
         for i in range(len(self.imgArray)):
             x, y = self.x, self.y + spacing * i
             canvas.create_image(x, y, image = self.imgArray[i])
+"""
 
 class News(object):
     def __init__(self, x, y):
@@ -354,12 +353,14 @@ class Location(object):
 class SmartMirror(object):
     def __init__(self):
         self.bgColor = "black"
+        self.isDrawHearts = False
     
     def timerFired(self):
         
         print("Voice function is", self.sf.voice_function)
         if self.sf.voice_function is not None and callable(self.sf.voice_function):
             self.sf.voice_function()
+            self.sf.voice_function = None # reset the function
         
         self.timeDate.update()
         self.news.article += 0.04
@@ -374,7 +375,16 @@ class SmartMirror(object):
         self.weather.draw(canvas)
         self.location.draw(canvas)
         self.news.draw(canvas)
-        self.insta.draw(canvas)
+        #self.insta.draw(canvas)
+        if self.isDrawHearts:
+            canvas.create_rectangle(30, 10, 120, 80, 
+                    outline="#fb0", fill="#fb0")
+            canvas.create_image(self.heartimgx, self.heartimgy, image = self.heartimg)
+            self.heartimgy += 10
+            if self.heartimgy >= self.height:
+                self.heartimgy = 0
+                self.isDrawHearts = False
+
 
     def getKey(self, weatherId):
         if weatherId == 800: key = 1
@@ -383,8 +393,8 @@ class SmartMirror(object):
         return key
 
     def run(self):
-        global canvas 
-	def redrawAllWrapper(canvas, self):
+
+        def redrawAllWrapper(canvas, self):
             canvas.delete(ALL)
             self.redrawAll(canvas)
             canvas.update()    
@@ -405,18 +415,22 @@ class SmartMirror(object):
         self.weather = Weather(100, 250)
         self.location = Location(self.width/2, self.height - 120)
         self.news = News(self.width/2, self.height - 175)
-        self.insta = Instagram(self.width - 200, 100)
+        #self.insta = Instagram(self.width - 200, 100)
         
         key = self.getKey(self.weather.id)
         d = {1: "Sunny.jpg", 2: "Thunderstorm.jpg", 3: "Rain.jpg", 4: "Partly Cloudy.jpg", 5: "Rain.jpg", 6: "Snow.jpg", 7: "Other.jpg", 8: "Clouds.jpg", 9: "Other.jpg"}
         self.weather.photo = ImageTk.PhotoImage(Image.open(join(BASE_PATH, d[key])))
         self.weather.moon = ImageTk.PhotoImage(Image.open(join(BASE_PATH, "Moon.jpg")))
+        self.heartimg = ImageTk.PhotoImage(Image.open(join(BASE_PATH, "heart.gif")))
+        self.heartimgx = self.width / 2
+        self.heartimgy = 0
+
 
         root.wm_title("SmartMirror")
         root.geometry(str(self.width) + "x" + str(self.height))
         self.timerDelay = 200 # milliseconds
-        canvas = Canvas(root, width = self.width, height=self.height)
-        canvas.pack()
+        self.canvas = Canvas(root, width = self.width, height=self.height)
+        self.canvas.pack()
 
 
         # Initialize and start speech to functioner:
@@ -424,9 +438,9 @@ class SmartMirror(object):
         self.sf.async_read_microphone();
 
 
-        root.bind("<Key>", lambda event: keyPressedWrapper(event, canvas, self, root))
+        root.bind("<Key>", lambda event: keyPressedWrapper(event, self.canvas, self, root))
 
-        timerFiredWrapper(canvas, self)
+        timerFiredWrapper(self.canvas, self)
         root.mainloop()
         print("bye!")
 
