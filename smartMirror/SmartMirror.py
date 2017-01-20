@@ -257,7 +257,36 @@ class Weather(object):
             img = self.moon
         canvas.create_image(self.x + 50, self.y - 135, image = img)
 
-class news(object):
+class Instagram(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.imgArray = []
+        self.populateImgArray()
+
+    def populateImgArray(self):
+        baseSize = 80
+        for i in range(10):
+            name = "test" + str(i) + ".jpeg"
+            img = Image.open(join(BASE_PATH, name))
+            img = self.resize(name, baseSize)
+            tkImg = ImageTk.PhotoImage((img))
+            self.imgArray.append(tkImg)
+
+    def resize(self, name, baseSize):
+        img = Image.open(join(BASE_PATH, name))
+        wpercent = (baseSize/float(img.size[0]))
+        hsize = int((float(img.size[1])*float(wpercent)))
+        img = img.resize((baseSize,hsize), Image.ANTIALIAS)
+        return img
+
+    def draw(self, canvas):
+        spacing = 100
+        for i in range(len(self.imgArray)):
+            x, y = self.x, self.y + spacing * i
+            canvas.create_image(x, y, image = self.imgArray[i])
+
+class News(object):
     def __init__(self, x, y):
         response = requests.get('https://news.google.com/news/section?cf=all&pz=1&topic=b&siidp=b458d5455b7379bd8193a061024cd11baa97&ict=ln')
         if (response.status_code == 200):
@@ -319,11 +348,11 @@ class SmartMirror(object):
         self.bgColor = "black"
     
     def timerFired(self):
-
+        
         print("Voice function is", self.sf.voice_function)
         if self.sf.voice_function is not None and callable(self.sf.voice_function):
             self.sf.voice_function()
-
+        
         self.timeDate.update()
         self.news.article += 0.04
 
@@ -337,6 +366,7 @@ class SmartMirror(object):
         self.weather.draw(canvas)
         self.location.draw(canvas)
         self.news.draw(canvas)
+        self.insta.draw(canvas)
 
     def getKey(self, weatherId):
         if weatherId == 800: key = 1
@@ -365,7 +395,8 @@ class SmartMirror(object):
         self.timeDate = TimeDate(self.width/2, 100)
         self.weather = Weather(100, 250)
         self.location = Location(self.width/2, self.height - 120)
-        self.news = news(self.width/2, self.height - 175)
+        self.news = News(self.width/2, self.height - 175)
+        self.insta = Instagram(self.width - 200, 100)
         
         key = self.getKey(self.weather.id)
         d = {1: "Sunny.jpg", 2: "Thunderstorm.jpg", 3: "Rain.jpg", 4: "Partly Cloudy.jpg", 5: "Rain.jpg", 6: "Snow.jpg", 7: "Other.jpg", 8: "Clouds.jpg", 9: "Other.jpg"}
