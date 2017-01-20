@@ -64,7 +64,9 @@ class SpeechFunctioner():
         recognizer_instance.phrase_time_limit = 20 # TODO: I don't think this variable is working
                                                    #       find out how to change phrase time limit.
                                                    #       Do we want this phrase time_limit?
-        audio_source = Microphone()
+        try: audio_source = Microphone()
+        except OSError as oserr: print("OSError: {0}".format(oserr)); return
+
         print("Spawning reader")
         stop_listener_fn = \
             recognizer_instance.listen_in_background( \

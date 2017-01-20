@@ -215,7 +215,10 @@ class Location(object):
         j = json.loads(r.text)
         lat, lon = 40.4435, -79.9435 #j['latitude'], j['longitude']
         r = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&key=AIzaSyBzGpoNZw9IE0enxByNgMA5NSat1xB_Ohw" % (lat, lon))
-        address = r.json()['results'][0]['formatted_address']
+        try:
+            address = r.json()['results'][0]['formatted_address']
+        except:
+            address = "Address Error, 123, 456"
         return self.buildAddress(address)
 
     def buildAddress(self, address):
