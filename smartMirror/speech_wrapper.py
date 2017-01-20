@@ -84,7 +84,7 @@ class SpeechFunctioner():
         """
 
 
-    def sync_read_microphone(self, duration = 5):
+    def sync_read_microphone(self, duration = 3):
         with Microphone() as audio_source:
             recognizer_instance = Recognizer()
             recognizer_instance.energy_threshold = self.SENSITIVITY
@@ -115,15 +115,15 @@ class SpeechFunctioner():
                         'Content-Type'  : 'application/json; charset=utf-8'
                     }
                 )
+
             print("Got structure back:")
             try: self.prettyprinter.pprint(self.response_json.json())
             except: print("Could not print JSON result.")
 
             try:
-                self.voice_function = \
-                    self.response_json.json()['result']['metadata']['intentName']
+                self.voice_function = self.response_json.json()['result']['metadata']['intentName']
             except Exception as err:
                 print("Not a valid voice function", self.voice_function)
                 print("Exception: {0}".format(err))
-                self.voice_function = None
-        return None
+                voice_function = None
+            return text_from_audio

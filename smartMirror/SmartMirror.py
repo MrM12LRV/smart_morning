@@ -150,11 +150,11 @@ class InstagramDraw(object):
     def draw(self, canvas):
         spacing = 180
         for i in range(len(self.imgArray)):
-            x, y = self.x, self.y + spacing * i
+            x, y = self.x - 84, self.y + spacing * i
             canvas.create_image(x, y, image = self.imgArray[i])
         j = 0
         for likeCount in self.likeArray:
-            x, y = self.x + 115, self.y + spacing * j
+            x, y = self.x + 115 - 84, self.y + spacing * j
             likeText = Text(x, y, likeCount, 72)
             likeText.drawText(canvas)
             j += 1
@@ -225,12 +225,12 @@ class SmartMirror(object):
     def __init__(self):
         self.bgColor = "black"
         self.isDrawHearts = False
-        self.isInstagramToggle = True
+        self.isInstagramToggle = False
     
     def __call_voice_command(self):
-        print("Voice function is", self.sf.voice_function)
 
         if self.sf.voice_function is not None:
+            print("Voice function is", self.sf.voice_function)
             try:
                 self.sf.voice_function = eval(self.sf.voice_function)
 
@@ -252,6 +252,7 @@ class SmartMirror(object):
     def keyPressed(self, event, root):
         e = event.keysym
         if e == 'q': root.destroy()
+        elif e == 'm': self.sf.sync_read_microphone()
         
     def redrawAll(self, canvas):
         canvas.create_rectangle(0, 0, self.width, self.height, fill = self.bgColor)
@@ -260,10 +261,8 @@ class SmartMirror(object):
         self.location.draw(canvas)
         self.news.draw(canvas)
         if self.isDrawHearts:
-            canvas.create_rectangle(30, 10, 120, 80, 
-                    outline="#fb0", fill="#fb0")
             canvas.create_image(self.heartimgx, self.heartimgy, image = self.heartimg)
-            self.heartimgy += 10
+            self.heartimgy += 20
             if self.heartimgy >= self.height:
                 self.heartimgy = 0
                 self.isDrawHearts = False
@@ -320,7 +319,7 @@ class SmartMirror(object):
 
         # Initialize and start speech to functioner:
         self.sf = SpeechFunctioner()
-        self.sf.async_read_microphone();
+        # self.sf.async_read_microphone();
 
 
         root.bind("<Key>", lambda event: keyPressedWrapper(event, self.canvas, self, root))
