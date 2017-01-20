@@ -8,24 +8,22 @@ client_secret = "e425943412cd4a55b74d0671c896e123"
 user_id = "305057786"
 client_id = "eca884df1cad4666a82432e314de7737"
 
+lat_cmu = "79.9435"
+long_cmu = "40.4435"
+place_id_cmu = "384628"
 
 api = InstagramAPI(access_token=access_token)
 
-photoURL = []
-like_count_array = []
+recent_location, next = api.location_recent_media(location_id = place_id_cmu)
 
-final_array = []
-
-recent_media, next = api.user_recent_media(user_id=user_id, count=10)
-for media in recent_media:
+photo_URL = []
+for media in recent_location:
+	
 	try:
 		newURL =  media.images['standard_resolution'].url
 		photoURL.append(newURL)
-
-		new_count = media.like_count
-		like_count_array.append(new_count)
-
+		
 	except:
 		continue
 
-final_array = zip(photoURL,like_count_array)
+print photo_URL
