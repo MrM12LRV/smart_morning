@@ -43,4 +43,19 @@ for media in recent_media:
 
 final_array = zip(photoURL,like_count_array)
 
+tagName = "carnegie mellon"
+
+recent_media = api.tag_recent_media(tag_name = tagName)
+for media in recent_media:
+	try:
+		newURL =  media.images['standard_resolution'].url
+		photoURL.append(newURL)
+
+		print photoURL
+
+
+	except:
+
+		continue
+
 
