@@ -121,6 +121,8 @@ class InstagramDraw(object):
         self.y = y
         self.imgArray = []
         self.populateImgArray()
+        self.likeArray = []
+        self.populateLikeArray()
 
     def populateImgArray(self):
         baseSize = 160
@@ -130,6 +132,12 @@ class InstagramDraw(object):
             img = self.resize(name, baseSize)
             tkImg = ImageTk.PhotoImage((img))
             self.imgArray.append(tkImg)
+
+    def populateLikeArray(self):
+        os.path.join(newPath,"likes.txt")
+        curFile = open(newPath2, 'r')
+        self.likeArray = curFile.read()
+        curFile.close()
 
     def resize(self, name, baseSize):
         img = Image.open(join(BASE_PATH, name))
@@ -143,6 +151,13 @@ class InstagramDraw(object):
         for i in range(len(self.imgArray)):
             x, y = self.x, self.y + spacing * i
             canvas.create_image(x, y, image = self.imgArray[i])
+        j = 0
+        for likeCount in self.likeArray:
+            x, y = self.x + 40, self.y + spacing * j
+            likeText = Text(x, y, likeCount, 10)
+            likeText.drawText(canvas)
+            j += 1
+
 
 
 class News(object):
