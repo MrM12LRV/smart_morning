@@ -138,8 +138,16 @@ class SpeechFunctioner():
 
 ##### Write functions for voice commands
 
-def Appearance():
+def showerWithHearts():
+    global canvas
+	# get image and display it on canvas
+  	# need to display gif of salt bae
     return "What is up yo?"
+
+def 
+
+def Weather():
+	
 
 
 #####
@@ -310,7 +318,8 @@ class SmartMirror(object):
         return key
 
     def run(self):
-        def redrawAllWrapper(canvas, self):
+        global canvas 
+	def redrawAllWrapper(canvas, self):
             canvas.delete(ALL)
             self.redrawAll(canvas)
             canvas.update()    
@@ -354,5 +363,6 @@ class SmartMirror(object):
         timerFiredWrapper(canvas, self)
         root.mainloop()
         print("bye!")
-        
-SmartMirror().run()
+
+sm = SmartMirror()
+sm.run()
