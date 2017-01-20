@@ -6,10 +6,143 @@ import datetime
 from lxml import html           # `python3 -m pip install lxml`
 import json
 import requests                 # `python3 -m pip install requests`
+from requests import get
+
+from speech_recognition import Microphone, Recognizer, AudioData
 from PIL import Image, ImageTk  # `python3 -m pip install pillow`
 from os.path import join
+from pprint import PrettyPrinter
 
 BASE_PATH = "images"
+
+class SpeechFunctioner():
+
+    def __init__(self):
+        self.prettyprinter = PrettyPrinter(indent=4)
+
+        self.HIGH = 4000
+        self.LOW = 1000
+        self.SENSITIVITY = self.HIGH
+        self.response_json = None
+        self.voice_function = None
+
+
+    def __async_listener_fn(self, recognizer_instance, audio_data):
+
+        print("Performing Sphinx Speech to Text asynchronously")
+        try:
+            text_from_audio = \
+                recognizer_instance.recognize_sphinx( \
+                    audio_data, show_all = False)
+        except Exception as e:
+            print(
+                "Exception in recognizer: " + str(e))
+            text_from_audio = None
+
+        print("Text recognized:\n\t", end="")
+        print(text_from_audio)
+        print("Sending HTTP request to API AI")
+        self.response_json = \
+            get('https://api.api.ai/v1/query?v=20150910&query=%s&lang=en&sessionId=1234567890' % text_from_audio,
+                headers={
+                    'language-tag'  : 'en',
+                    'Authorization' : 'Bearer e4099166fd7a41218ba851d21e6866f5',
+                    'Content-Type'  : 'application/json; charset=utf-8'
+                }
+            )
+
+        print("Got structure back:")
+        try: self.prettyprinter.pprint(self.response_json.json())
+        except: print("Could not print JSON result.")
+
+        try:
+            self.voice_function = eval(self.response_json.json()['result']['metadata']['intentName'])
+        except Exception as err:
+            print("Not a valid voice function", self.voice_function)
+            print("Exception: {0}".format(err))
+            voice_function = None
+
+        return text_from_audio
+
+    # developer:    cac03a5b9aca49e2b63e97f7c0ae0cec    (managing entities and intents)
+    # client:       e4099166fd7a41218ba851d21e6866f5    (making queries)
+    # Authorization: Bearer YOUR_ACCESS_TOKEN
+
+    def async_read_microphone(self):
+        recognizer_instance = Recognizer()
+        recognizer_instance.energy_threshold = self.SENSITIVITY
+        recognizer_instance.phrase_time_limit = 20 # TODO: I don't think this variable is working
+                                                   #       find out how to change phrase time limit.
+                                                   #       Do we want this phrase time_limit?
+        audio_source = Microphone()
+        print("Spawning reader")
+        stop_listener_fn = \
+            recognizer_instance.listen_in_background( \
+                audio_source, self.__async_listener_fn)
+
+        print("Leaving read microphone")
+        """print("Waiting to read for 10 seconds")
+        from time import sleep
+        sleep(100)                  # TODO: when do we stop lisening?
+        stop_listener_fn()          #       Probably never; Maybe when we
+                                    #       just quit out of app?
+        print("No longer taking audio input")
+        
+        return
+        """
+
+
+    def sync_read_microphone(self, duration = 5):
+        with Microphone() as audio_source:
+            recognizer_instance = Recognizer()
+            recognizer_instance.energy_threshold = self.SENSITIVITY
+
+            print("Reading")
+            audio_data = \
+                recognizer_instance.record( \
+                    audio_source, duration = duration)
+
+            print("Performing Sphinx Speech to Text")
+            try:
+                text_from_audio = \
+                    recognizer_instance.recognize_sphinx( \
+                        audio_data, show_all = False)
+            except Exception as e:
+                print(
+                    "Exception in recognizer: " + str(e))
+                text_from_audio = None
+
+            print(text_from_audio)
+            print("Sending HTTP request to API AI")
+
+            self.response_json = \
+                get('https://api.api.ai/v1/query?v=20150910&query=%s&lang=en&sessionId=1234567890' % text_from_audio,
+                    headers={
+                        'language-tag'  : 'en',
+                        'Authorization' : 'Bearer e4099166fd7a41218ba851d21e6866f5',
+                        'Content-Type'  : 'application/json; charset=utf-8'
+                    }
+                )
+            print("Got structure back:")
+            try: self.prettyprinter.pprint(self.response_json.json())
+            except: print("Could not print JSON result.")
+
+            try:
+                self.voice_function = \
+                    eval(self.response_json.json()['result']['metadata']['intentName'])
+            except Exception as err:
+                print("Not a valid voice function", self.voice_function)
+                print("Exception: {0}".format(err))
+                self.voice_function = None
+        return None
+
+##### Write functions for voice commands
+
+def Appearance():
+    return "What is up yo?"
+
+
+#####
 
 def cleanTime(time): #destructively removes leading 0 in 12 hr time
     if time[0] == "0": time = time[1:]
@@ -55,7 +188,6 @@ class Weather(object):
         self.sunset24 = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunset'])).strftime('%H:%M'))
         self.sunset = cleanTime(datetime.datetime.fromtimestamp(int(weather['sys']['sunset'])).strftime('%I:%M %p'))
         self.cloudCover = weather['clouds']['all']
-        self.windDeg = weather['wind']['deg']
         self.windSpeed = weather['wind']['speed']
         self.visibility = weather['visibility']
         self.descript = weather['weather'][0]['description'].title()
@@ -106,7 +238,7 @@ class news(object):
         return self.news[int(self.article)%self.numArticles]
 
     def draw(self, canvas):
-        headline = Text(self.x, self.y, self.getArticle(), 20)
+        headline = Text(self.x, self.y, self.getArticle(), 16)
         headline.drawText(canvas)
 
 class TimeDate(object):
@@ -152,8 +284,17 @@ class SmartMirror(object):
         self.bgColor = "black"
     
     def timerFired(self):
+
+        print("Voice function is", self.sf.voice_function)
+        if self.sf.voice_function is not None and callable(self.sf.voice_function):
+            self.sf.voice_function()
+
         self.timeDate.update()
         self.news.article += 0.04
+
+    def keyPressed(self, event, root):
+        e = event.keysym
+        if e == 'q': root.destroy()
         
     def redrawAll(self, canvas):
         canvas.create_rectangle(0, 0, self.width, self.height, fill = self.bgColor)
@@ -174,6 +315,10 @@ class SmartMirror(object):
             self.redrawAll(canvas)
             canvas.update()    
 
+        def keyPressedWrapper(event, canvas, self, root):
+            self.keyPressed(event, root)
+            redrawAllWrapper(canvas, self)
+
         def timerFiredWrapper(canvas, self):
             self.timerFired()
             redrawAllWrapper(canvas, self)
@@ -181,7 +326,7 @@ class SmartMirror(object):
         
         root = Tk()
         self.width, self.height = root.winfo_screenwidth(), root.winfo_screenheight()
-        root.overrideredirect(1)
+
         self.timeDate = TimeDate(self.width/2, 100)
         self.weather = Weather(100, 250)
         self.location = Location(self.width/2, self.height - 120)
@@ -197,6 +342,15 @@ class SmartMirror(object):
         self.timerDelay = 200 # milliseconds
         canvas = Canvas(root, width = self.width, height=self.height)
         canvas.pack()
+
+
+        # Initialize and start speech to functioner:
+        self.sf = SpeechFunctioner()
+        self.sf.async_read_microphone();
+
+
+        root.bind("<Key>", lambda event: keyPressedWrapper(event, canvas, self, root))
+
         timerFiredWrapper(canvas, self)
         root.mainloop()
         print("bye!")
