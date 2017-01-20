@@ -251,10 +251,8 @@ class SmartMirror(object):
             if self.heartimgy >= self.height:
                 self.heartimgy = 0
                 self.isDrawHearts = False
-        if True:
+        if self.isInstagramToggle:
             self.instagramDraw.draw(canvas)
-            self.isInstagramToggle = True
-
 
     def getKey(self, weatherId):
         if weatherId == 800: key = 1
