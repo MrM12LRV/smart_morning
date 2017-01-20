@@ -40,6 +40,10 @@ for media in recent_media:
 	urllib.urlretrieve(newURL, halffilename)
 	num +=1
 
-
+filePath = os.path.join('C:\Users\Shreya\Documents\GitHub\smart_morning\smartMirror\images',"likes.txt")
+thefile = open(filePath, 'w')
+for item in like_count_array:
+  thefile.write("%s\n" % item)
+thefile.close()
 final_array = zip(photoURL,like_count_array)
 
