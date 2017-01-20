@@ -13,6 +13,10 @@ from PIL import Image, ImageTk  # `python3 -m pip install pillow`
 from os.path import join
 from pprint import PrettyPrinter
 
+from instagram.client import InstagramAPI
+import httplib2
+import sys
+
 BASE_PATH = "images"
 
 class SpeechFunctioner():
@@ -143,7 +147,37 @@ def Appearance():
 
 
 #####
+def showInsta():
+    access_token = "305057786.eca884d.4e28837ad0f34ffa97b323b40ab41eba"
+    client_secret = "e425943412cd4a55b74d0671c896e123"
+    user_id = "305057786"
+    client_id = "eca884df1cad4666a82432e314de7737"
 
+
+    api = InstagramAPI(access_token=access_token)
+
+    photoURL = []
+    like_count_array = []
+    final_array = []
+
+    recent_media, next = api.user_recent_media(user_id=user_id, count=10)
+    for media in recent_media:
+        try:
+            newURL =  media.images['standard_resolution'].url
+            photoURL.append(newURL)
+
+            new_count = media.like_count
+            like_count_array.append(new_count)
+        except:
+            continue
+
+    final_array = zip(photoURL,like_count_array)
+    return final_array
+
+def drawInstaScreen(final_array):
+    
+
+#####
 def cleanTime(time): #destructively removes leading 0 in 12 hr time
     if time[0] == "0": time = time[1:]
     return time
