@@ -263,6 +263,7 @@ class SmartMirror(object):
             canvas.create_rectangle(30, 10, 120, 80, 
                     outline="#fb0", fill="#fb0")
             canvas.create_image(self.heartimgx, self.heartimgy, image = self.heartimg)
+            canvas.create_image(self.thumbsupimgx, self.thumbsupimgy, image = self.thumbsupimg)
             self.heartimgy += 10
             if self.heartimgy >= self.height:
                 self.heartimgy = 0
@@ -307,8 +308,12 @@ class SmartMirror(object):
         self.weather.photo = ImageTk.PhotoImage(Image.open(join(BASE_PATH, d[key])))
         self.weather.moon = ImageTk.PhotoImage(Image.open(join(BASE_PATH, "Moon.jpg")))
         self.heartimg = ImageTk.PhotoImage(Image.open(join(BASE_PATH, "heart.gif")))
-        self.heartimgx = self.width / 2
+        self.thumbsupimg = ImageTk.PhotoImage(Image.open(join(BASE_PATH, "thumbsUp.gif")))
+
+        self.heartimgx = self.width / 2.
         self.heartimgy = 0
+        self.thumbsupimgx = self.width * 7. / 8
+        self.thumbsupimgy = self.height * 1. / 2
 
 
         root.wm_title("SmartMirror")
